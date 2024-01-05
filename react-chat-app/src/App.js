@@ -11,11 +11,15 @@ function App() {
   const [room, setRoom] = useState('');
   const [roomList, setRoomList] = useState([]);
   const [showChat, setShowChat] = useState(false);
+  const [alreadyExist, setAlreadyExist] = useState(false);
 
   const joinRoom = () => {
     if (username.trim() !== '' && room.trim() !== '') {
       socket.emit('join-room', { username, room });
       setShowChat(true);
+      socket.on('already-exists', () => {
+        setAlreadyExist(true);
+      });
     }
   };
   
@@ -43,9 +47,8 @@ function App() {
     <div className="App">
     {!showChat ? (
       <div>
-
         <h1>Chat App</h1>
-
+        
         <div>
           <label>Username:</label>
           <input
@@ -74,10 +77,16 @@ function App() {
           <button onClick={leaveRoom}>Leave Room</button>
         </div>
       </div>
+    ) : (
+      alreadyExist ? (
+        <div>
+          <h1>User already exists in the room.</h1>
+        </div>
       ) : (
         <Chat socket={socket} username={username} room={room} />
-      )}
-
+      )
+    )}
+    
     </div>
   );
 }
