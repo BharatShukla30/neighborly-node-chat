@@ -35,6 +35,10 @@ io.on('connection', (socket) => {
       socket.join(room);
       console.log(`${username} joined ${room}`);
     }
+    else {
+      console.log(`${username} already exists in ${room}`);
+      socket.emit('already-exists');
+    }
   });
 
   socket.on('leave-room', ({ username, room }) => {
