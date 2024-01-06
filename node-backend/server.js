@@ -35,6 +35,10 @@ io.on('connection', (socket) => {
       socket.join(room);
       console.log(`${username} joined ${room}`);
     }
+    else {
+      console.log(`${username} already exists in ${room}`);
+      socket.emit('already-exists');
+    }
   });
 
   socket.on('leave-room', ({ username, room }) => {
@@ -45,8 +49,12 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('chat-message', ({ username, message }) => {
-    io.to(room).emit('chat-message', { username, message });
+  // socket.on('chat-message', ({ username, message }) => {
+  //   io.to(room).emit('chat-message', { username, message });
+  // });
+
+  socket.on("send_message", (data) => {
+    socket.to(data.room).emit("receive_message", data);
   });
 
   socket.on('disconnect', () => {
