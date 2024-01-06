@@ -13,10 +13,10 @@ const io = require('socket.io')(server,{
 const PORT = process.env.PORT || 3001;
 
 const availableRooms = ['room1', 'room2', 'room3'];
-let setOfUsers = new Set([]);
+let infoUsers = {};
 
-const userExists = (user) => {
-  if(setOfUsers.has(user)){
+const userExists = (user, room) => {
+  if (infoUsers.hasOwnProperty(room) && infoUsers[room].has(user)) {
     return true;
   }
   return false;
@@ -30,23 +30,35 @@ io.on('connection', (socket) => {
   });
 
   socket.on('join-room', ({ username, room }) => {
-    if (!userExists(username)){
-      setOfUsers.add(username);
+    if (!userExists(username, room)) {
+      if (infoUsers.hasOwnProperty(room)) {
+        infoUsers[room].add(username); // Use Set's add method to add a user
+      } else {
+        infoUsers[room] = new Set([username]); // Create a new Set with the initial user
+      }
       socket.join(room);
       console.log(`${username} joined ${room}`);
+    } else {
+      console.log(`${username} already exists in ${room}`);
+      socket.emit('already-exists');
     }
   });
 
   socket.on('leave-room', ({ username, room }) => {
-    if(userExists(username)){
-      setOfUsers.delete(username);
+    if (userExists(username, room)) {
+      infoUsers[room].delete(username); // Use delete method to remove a user from the Set
       socket.leave(room);
       console.log(`${username} left ${room}`);
     }
   });
+  
 
-  socket.on('chat-message', ({ username, message }) => {
-    io.to(room).emit('chat-message', { username, message });
+  // socket.on('chat-message', ({ username, message }) => {
+  //   io.to(room).emit('chat-message', { username, message });
+  // });
+
+  socket.on("send_message", (data) => {
+    socket.to(data.room).emit("receive_message", data);
   });
 
   socket.on('disconnect', () => {
