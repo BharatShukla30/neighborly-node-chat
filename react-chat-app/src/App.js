@@ -17,9 +17,6 @@ function App() {
     if (username.trim() !== '' && room.trim() !== '') {
       socket.emit('join-room', { username, room });
       setShowChat(true);
-      socket.on('already-exists', () => {
-        setAlreadyExist(true);
-      });
     }
   };
   
@@ -38,6 +35,10 @@ function App() {
     // Listen for the list of available rooms
     socket.on('room-list', (rooms) => {
       setRoomList(rooms);
+    });
+
+    socket.on('already-exists', () => {
+      setAlreadyExist(true);
     });
 
   }, [username, room]);
