@@ -13,10 +13,10 @@ const io = require('socket.io')(server,{
 const PORT = process.env.PORT || 3001;
 
 const availableRooms = ['room1', 'room2', 'room3'];
-let infoUsers = {};
+let usersInRooms = {};
 
 const userExists = (user, room) => {
-  if (infoUsers.hasOwnProperty(room) && infoUsers[room].has(user)) {
+  if (usersInRooms.hasOwnProperty(room) && usersInRooms[room].has(user)) {
     return true;
   }
   return false;
@@ -31,10 +31,10 @@ io.on('connection', (socket) => {
 
   socket.on('join-room', ({ username, room }) => {
     if (!userExists(username, room)) {
-      if (infoUsers.hasOwnProperty(room)) {
-        infoUsers[room].add(username); // Use Set's add method to add a user
+      if (usersInRooms.hasOwnProperty(room)) {
+        usersInRooms[room].add(username); // Use Set's add method to add a user
       } else {
-        infoUsers[room] = new Set([username]); // Create a new Set with the initial user
+        usersInRooms[room] = new Set([username]); // Create a new Set with the initial user
       }
       socket.join(room);
       console.log(`${username} joined ${room}`);
@@ -46,7 +46,7 @@ io.on('connection', (socket) => {
 
   socket.on('leave-room', ({ username, room }) => {
     if (userExists(username, room)) {
-      infoUsers[room].delete(username); // Use delete method to remove a user from the Set
+      usersInRooms[room].delete(username); // Use delete method to remove a user from the Set
       socket.leave(room);
       console.log(`${username} left ${room}`);
     }
