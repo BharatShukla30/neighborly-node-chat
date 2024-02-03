@@ -9,12 +9,10 @@ function Chat({ socket, username, room }) {
     if (currentMessage !== "") {
       const messageData = {
         room: room,
-        author: username,
+        sender: username,
         message: currentMessage,
         time:
-          new Date(Date.now()).getHours() +
-          ":" +
-          new Date(Date.now()).getMinutes(),
+          new Date(Date.now())
       };
 
       await socket.emit("send_message", messageData);
@@ -25,6 +23,7 @@ function Chat({ socket, username, room }) {
 
   useMemo(() => {
     socket.on("receive_message", (data) => {
+      data.time = new Date(data.time);
       setMessageList((list) => [...list, data]);
     });
   }, [socket]);
@@ -47,8 +46,8 @@ function Chat({ socket, username, room }) {
                     <p>{messageContent.message}</p>
                   </div>
                   <div className="message-meta">
-                    <p id="time">{messageContent.time}</p>
-                    <p id="author">{messageContent.author}</p>
+                    <p id="time">{new Date(messageContent.time).getHours()}:{new Date(messageContent.time).getMinutes()}</p>
+                    <p id="author">{messageContent.sender}</p>
                   </div>
                 </div>
               </div>

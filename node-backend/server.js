@@ -2,14 +2,19 @@ const express = require('express');
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
-const {Server} = require('socket.io');
+const connectDatabase = require("./config/database");
+const dotenv = require("dotenv");
+dotenv.config({ path: "./config/config.env" });
+// const {Server} = require('socket.io');
+
+const Message = require('./Models/Message-data');
 
 const io = require('socket.io')(server,{
   cors:{
     origin: '*',
   }
 });
-
+connectDatabase();
 const PORT = process.env.PORT || 3001;
 
 const availableRooms = ['room1', 'room2', 'room3'];
@@ -58,6 +63,12 @@ io.on('connection', (socket) => {
   // });
 
   socket.on("send_message", (data) => {
+    const message = Message.create({
+      room: data.room,
+      sender: data.sender,
+      message: data.message,
+      time: new Date(data.time)
+    });
     socket.to(data.room).emit("receive_message", data);
   });
 
