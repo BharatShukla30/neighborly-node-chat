@@ -5,7 +5,6 @@ import Chat from "./Chat";
 
 
 const socket = io('http://localhost:3001'); // Adjust the URL accordingly
-// const socket = null;
 
 function App() {
   const [username, setUsername] = useState('');
@@ -16,7 +15,6 @@ function App() {
 
   const joinRoom = () => {
     if (username.trim() !== '' && room.trim() !== '') {
-      if(socket!=null)
       socket.emit('join-room', { username, room });
       setShowChat(true);
     }
@@ -25,7 +23,6 @@ function App() {
   const leaveRoom = () => {
     console.log('leave-room')
     if (username.trim() !== '' && room.trim() !== '') {
-      if (socket != null)
       socket.emit('leave-room', { username, room });
     }
   };
@@ -33,16 +30,13 @@ function App() {
   useMemo(() => {
     
     // Fetch the list of available rooms when the component mounts
-    if (socket != null)
     socket.emit('get-room-list');
 
     // Listen for the list of available rooms
-    if (socket != null)
     socket.on('room-list', (rooms) => {
       setRoomList(rooms);
     });
 
-    if (socket != null)
     socket.on('already-exists', () => {
       setAlreadyExist(true);
     });
