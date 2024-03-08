@@ -1,21 +1,42 @@
+// messageModel.js
 const mongoose = require("mongoose");
 
-const message = new mongoose.Schema({
-    room: {
-        type: String,
-        required: [true, "Please enter room name"]
+const messageSchema = new mongoose.Schema({
+    group_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Group",
+        required: true
     },
     sender: {
+        senderId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true
+        },
+        senderName: {
+            type: String,
+            required: true
+        }
+    },
+    msg: {
         type: String,
-        required: [true, "Please enter sender detail"]
+        required: true,
     },
-    message: {
-        type: String
-    },
-    time: {
+    sent_at: {
         type: Date,
-        required: [true, "Please provide timestamp"]
-    }
+        default: Date.now,
+    },
+    read_by: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    }],
+    votes: {
+        type: Number,
+        default: 0,
+    },
 });
 
-module.exports = mongoose.model("Message", message);
+const Message = mongoose.model("Message", messageSchema);
+
+module.exports = Message;

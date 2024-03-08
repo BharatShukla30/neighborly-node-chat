@@ -15,7 +15,7 @@ function Chat({ socket, username, room }) {
           new Date(Date.now())
       };
 
-      await socket.emit("send_message", messageData);
+      await socket.emit("send-message", messageData);
       setMessageList((list) => [...list, messageData]);
       setCurrentMessage("");
     }

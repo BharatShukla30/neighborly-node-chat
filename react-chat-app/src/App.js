@@ -8,14 +8,15 @@ const socket = io('http://localhost:3001'); // Adjust the URL accordingly
 
 function App() {
   const [username, setUsername] = useState('');
-  const [room, setRoom] = useState('');
+  const [room, setRoom] = useState('food-lovers');
   const [roomList, setRoomList] = useState([]);
   const [showChat, setShowChat] = useState(false);
   const [alreadyExist, setAlreadyExist] = useState(false);
 
   const joinRoom = () => {
     if (username.trim() !== '' && room.trim() !== '') {
-      socket.emit('join-room', { username, room });
+      socket.emit('join-room', { user_id: "user123", group_id: "food-lovers" });
+      socket.emit('join-room', { user_id: "user124", group_id: "food-lovers" })
       setShowChat(true);
     }
   };
@@ -23,7 +24,7 @@ function App() {
   const leaveRoom = () => {
     console.log('leave-room')
     if (username.trim() !== '' && room.trim() !== '') {
-      socket.emit('leave-room', { username, room });
+      socket.emit('leave-room', { user_id: "user123", group_id: "food-lovers" });
     }
   };
 
