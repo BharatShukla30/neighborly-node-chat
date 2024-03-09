@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import io from 'socket.io-client';
 import "./App.css";
 import Chat from "./Chat";
@@ -9,13 +9,12 @@ const socket = io('http://localhost:3001'); // Adjust the URL accordingly
 function App() {
   const [username, setUsername] = useState('');
   const [room, setRoom] = useState('');
-  const [roomList, setRoomList] = useState([]);
   const [showChat, setShowChat] = useState(false);
-  const [alreadyExist, setAlreadyExist] = useState(false);
+  const [userId, setUserId] = useState('');
 
   const joinRoom = () => {
     if (username.trim() !== '' && room.trim() !== '') {
-      socket.emit('join-room', { username, room });
+      socket.emit('join-room', { user_id: userId, group_id: room });
       setShowChat(true);
     }
   };
@@ -23,25 +22,9 @@ function App() {
   const leaveRoom = () => {
     console.log('leave-room')
     if (username.trim() !== '' && room.trim() !== '') {
-      socket.emit('leave-room', { username, room });
+      socket.emit('leave-room', { user_id: userId, group_id: room });
     }
   };
-
-  useMemo(() => {
-    
-    // Fetch the list of available rooms when the component mounts
-    socket.emit('get-room-list');
-
-    // Listen for the list of available rooms
-    socket.on('room-list', (rooms) => {
-      setRoomList(rooms);
-    });
-
-    socket.on('already-exists', () => {
-      setAlreadyExist(true);
-    });
-
-  }, [username, room]);
 
 
   return (
@@ -51,26 +34,23 @@ function App() {
         <h1>Chat App</h1>
         
         <div>
-          <label>Username:</label>
+          <label htmlFor='username'>Username:</label>
           <input
             type="text"
+            name='username'
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
         </div>
 
         <div>
-          <label>Select Room:</label>
-          <select value={room} onChange={(e) => setRoom(e.target.value)}>
-            <option value="">Choose a room</option>
-            {roomList.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
+          <label htmlFor='room'>Enter Room:</label>
+          <input type='text' name='room' value={room} onChange={(e) => setRoom(e.target.value)} />
         </div>
-
+          <div>
+            <label htmlFor='userId'>Enter UserId:</label>
+            <input type='text' name='userId' value={userId} onChange={(e) => setUserId(e.target.value)} />
+          </div>
         <div>
           <button onClick={joinRoom}>Join Room</button>
         </div>
@@ -78,15 +58,9 @@ function App() {
           <button onClick={leaveRoom}>Leave Room</button>
         </div>
       </div>
-    ) : (
-      alreadyExist ? (
-        <div>
-          <h1>User already exists in the room.</h1>
-        </div>
-      ) : (
-        <Chat socket={socket} username={username} room={room} />
-      )
-    )}
+    ): (
+        <Chat socket={socket} username={username} userId={userId} room={room} />
+      )}
     
     </div>
   );
