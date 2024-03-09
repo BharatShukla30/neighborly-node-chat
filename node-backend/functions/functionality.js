@@ -1,4 +1,6 @@
 const Message = require('../Models/Message-data');
+const mongoose = require("mongoose");
+const ObjectId = mongoose.mongo.ObjectId;
 
 let room_under_use = {};
 
@@ -24,9 +26,9 @@ exports.leaveRoom = (socket, user_id, group_id) => {
     }
 }
 
-exports.sendMessage = (group_id, senderId, senderName, msg, time) => {
+exports.sendMessage = async(group_id, senderId, senderName, msg, time) => {
     const readers = room_under_use[group_id].map(reader => new ObjectId(reader));
-    const message = Message.create({
+    const message = await Message.create({
         group_id: new ObjectId(group_id),
         sender: {
             senderId: new ObjectId(senderId),

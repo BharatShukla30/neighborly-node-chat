@@ -1,16 +1,17 @@
 import React, { useMemo, useState } from "react";
 import ScrollToBottom from "react-scroll-to-bottom";
 
-function Chat({ socket, username, room }) {
+function Chat({ socket, username, userId, room }) {
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
 
   const sendMessage = async () => {
     if (currentMessage !== "") {
       const messageData = {
-        room: room,
-        sender: username,
-        message: currentMessage,
+        group_id: room,
+        senderId: userId,
+        senderName: username,
+        msg: currentMessage,
         time:
           new Date(Date.now())
       };
@@ -39,15 +40,15 @@ function Chat({ socket, username, room }) {
             return (
               <div
                 className="message"
-                id={username === messageContent.author ? "you" : "other"}
+                id={username === messageContent.senderName ? "you" : "other"}
               >
                 <div>
                   <div className="message-content">
-                    <p>{messageContent.message}</p>
+                    <p>{messageContent.msg}</p>
                   </div>
                   <div className="message-meta">
                     <p id="time">{new Date(messageContent.time).getHours()}:{new Date(messageContent.time).getMinutes()}</p>
-                    <p id="author">{messageContent.sender}</p>
+                    <p id="author">{messageContent.senderName}</p>
                   </div>
                 </div>
               </div>

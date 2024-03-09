@@ -30,8 +30,9 @@ io.on('connection',(socket) => {
   //-----------------------------------------------------------------------------------------------------------------------------------------
 
   //---------------------------------------------- Sending message --------------------------------------------------------------------------
-  socket.on('send-message', ({group_id, senderId, senderName, msg, time}) => {
-    sendMessage(group_id, senderId, senderName, msg, time);
+  socket.on('send-message', async ({group_id, senderId, senderName, msg, time}) => {
+    await sendMessage(group_id, senderId, senderName, msg, time);
+    socket.to(group_id).emit('receive_message', {group_id: group_id, senderId: senderId, senderName: senderName, msg: msg, time: time} );
   });
 });
 
