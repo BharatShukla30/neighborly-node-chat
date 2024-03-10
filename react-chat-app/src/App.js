@@ -10,11 +10,10 @@ function App() {
   const [username, setUsername] = useState('');
   const [room, setRoom] = useState('');
   const [showChat, setShowChat] = useState(false);
-  const [userId, setUserId] = useState('');
 
   const joinRoom = () => {
     if (username.trim() !== '' && room.trim() !== '') {
-      socket.emit('join-room', { user_id: userId, group_id: room });
+      socket.emit('join-room', { username: username, group_id: room });
       setShowChat(true);
     }
   };
@@ -22,7 +21,7 @@ function App() {
   const leaveRoom = () => {
     console.log('leave-room')
     if (username.trim() !== '' && room.trim() !== '') {
-      socket.emit('leave-room', { user_id: userId, group_id: room });
+      socket.emit('leave-room', { username: username, group_id: room });
     }
   };
 
@@ -47,10 +46,6 @@ function App() {
           <label htmlFor='room'>Enter Room:</label>
           <input type='text' name='room' value={room} onChange={(e) => setRoom(e.target.value)} />
         </div>
-          <div>
-            <label htmlFor='userId'>Enter UserId:</label>
-            <input type='text' name='userId' value={userId} onChange={(e) => setUserId(e.target.value)} />
-          </div>
         <div>
           <button onClick={joinRoom}>Join Room</button>
         </div>
@@ -59,7 +54,7 @@ function App() {
         </div>
       </div>
     ): (
-        <Chat socket={socket} username={username} userId={userId} room={room} />
+        <Chat socket={socket} username={username} room={room} />
       )}
     
     </div>

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import ScrollToBottom from "react-scroll-to-bottom";
 
-function Chat({ socket, username, userId, room }) {
+function Chat({ socket, username, room }) {
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
 
@@ -9,7 +9,6 @@ function Chat({ socket, username, userId, room }) {
     if (currentMessage !== "") {
       const messageData = {
         group_id: room,
-        senderId: userId,
         senderName: username,
         msg: currentMessage,
         time:
