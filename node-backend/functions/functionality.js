@@ -4,39 +4,35 @@ const ObjectId = mongoose.mongo.ObjectId;
 
 let room_under_use = {};
 
-exports.joinRoom = (socket, user_id, group_id) => {
-    if (!doesUserInRoom(user_id, group_id)) {
+exports.joinRoom = (socket, username, group_id) => {
+    if (!doesUserInRoom(username, group_id)) {
         socket.join(group_id);
         if(!room_under_use.hasOwnProperty(group_id))
             room_under_use[group_id] = [];
-        room_under_use[group_id].push(user_id);
+        room_under_use[group_id].push(username);
         console.log(room_under_use);
-        console.log(user_id + " is active in the group " + group_id);
+        console.log(username + " is active in the group " + group_id);
     }
 }
 
-exports.leaveRoom = (socket, user_id, group_id) => {
-    if(doesUserInRoom(user_id, group_id)) {
+exports.leaveRoom = (socket, username, group_id) => {
+    if(doesUserInRoom(username, group_id)) {
         socket.leave(group_id);
-        const index = room_under_use[group_id].indexOf(user_id);
+        const index = room_under_use[group_id].indexOf(username);
         console.log(index);
         room_under_use[group_id].splice(index, 1);
         console.log(room_under_use);
-        console.log(user_id + " is deactivated from the group " + group_id);
+        console.log(username + " is deactivated from the group " + group_id);
     }
 }
 
-exports.sendMessage = async(group_id, senderId, senderName, msg, time) => {
-    const readers = room_under_use[group_id].map(reader => new ObjectId(reader));
+exports.sendMessage = async(group_id, senderName, msg, time) => {
     const message = await Message.create({
         group_id: new ObjectId(group_id),
-        sender: {
-            senderId: new ObjectId(senderId),
-            senderName: senderName
-        },
+        senderName: senderName,
         msg: msg,
         sent_at: new Date(time),
-        read_by: readers
+        read_by: room_under_use[group_id]
     })
     console.log(message);
 }
