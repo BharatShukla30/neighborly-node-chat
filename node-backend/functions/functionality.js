@@ -44,3 +44,13 @@ const doesUserInRoom = (user, room) => {
     }
     return false;
 };
+
+exports.upVote = async(msg_id) => {
+    await Message.updateOne({_id: new ObjectId(msg_id)},
+    {$inc: {votes: 1}});
+}
+
+exports. downVote = async(msg_id) => {
+    await Message.updateOne({ _id: new ObjectId(msg_id) },
+        { $inc: { votes: -1 } });
+}
