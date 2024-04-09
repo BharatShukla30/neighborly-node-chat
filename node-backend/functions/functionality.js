@@ -5,14 +5,18 @@ const ObjectId = mongoose.mongo.ObjectId;
 let room_under_use = {};
 
 exports.joinRoom = (socket, username, group_id) => {
-    if (!doesUserInRoom(username, group_id)) {
-        socket.join(group_id);
-        if(!room_under_use.hasOwnProperty(group_id))
-            room_under_use[group_id] = [];
-        room_under_use[group_id].push(username);
-        console.log(room_under_use);
-        console.log(username + " is active in the group " + group_id);
-    }
+    // if (!doesUserInRoom(username, group_id)) {
+    //     socket.join(group_id);
+    //     if(!room_under_use.hasOwnProperty(group_id))
+    //         room_under_use[group_id] = [];
+    //     room_under_use[group_id].push(username);
+    //     console.log(room_under_use);
+    //     console.log(username + " is active in the group " + group_id);
+    // }
+    socket.join(group_id);
+    console.log(username + " is active in the group " + group_id);
+
+
 }
 
 exports.leaveRoom = (socket, username, group_id) => {
