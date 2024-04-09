@@ -1,18 +1,22 @@
-const Message = require('../Models/Message-data');
+const Message = require('../Models/Message');
 const mongoose = require("mongoose");
 const ObjectId = mongoose.mongo.ObjectId;
 
 let room_under_use = {};
 
 exports.joinRoom = (socket, username, group_id) => {
-    if (!doesUserInRoom(username, group_id)) {
-        socket.join(group_id);
-        if(!room_under_use.hasOwnProperty(group_id))
-            room_under_use[group_id] = [];
-        room_under_use[group_id].push(username);
-        console.log(room_under_use);
-        console.log(username + " is active in the group " + group_id);
-    }
+    // if (!doesUserInRoom(username, group_id)) {
+    //     socket.join(group_id);
+    //     if(!room_under_use.hasOwnProperty(group_id))
+    //         room_under_use[group_id] = [];
+    //     room_under_use[group_id].push(username);
+    //     console.log(room_under_use);
+    //     console.log(username + " is active in the group " + group_id);
+    // }
+    socket.join(group_id);
+    console.log(username + " is active in the group " + group_id);
+
+
 }
 
 exports.leaveRoom = (socket, username, group_id) => {
@@ -26,15 +30,15 @@ exports.leaveRoom = (socket, username, group_id) => {
     }
 }
 
-exports.sendMessage = async(group_id, senderName, msg, time) => {
+exports.sendMessage = async(group_id, senderName, msg, sent_at) => {
     const message = await Message.create({
         group_id: new ObjectId(group_id),
         senderName: senderName,
         msg: msg,
-        sent_at: new Date(time),
+        sent_at: sent_at,
         read_by: room_under_use[group_id]
     })
-    console.log(message);
+    // console.log(message);
 }
 
 const doesUserInRoom = (user, room) => {
