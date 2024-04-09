@@ -5,7 +5,7 @@ const server = http.createServer(app);
 const connectDatabase = require("./config/database");
 const dotenv = require("dotenv");
 dotenv.config({ path: "./config/config.env" });
-const { joinRoom, leaveRoom, sendMessage, upVote, downVote } = require("./functions/functionality")
+const { joinRoom, leaveRoom, sendMessage, upVote, downVote } = require("./controllers/chatController")
 
 const io = require('socket.io')(server,{
   cors:{
@@ -30,9 +30,9 @@ io.on('connection',(socket) => {
   //-----------------------------------------------------------------------------------------------------------------------------------------
 
   //---------------------------------------------- Sending message --------------------------------------------------------------------------
-  socket.on('send-message', async ({group_id, senderName, msg, time}) => {
-    await sendMessage(group_id, senderName, msg, time);
-    socket.to(group_id).emit('receive_message', {group_id: group_id, senderName: senderName, msg: msg, time: time} );
+  socket.on('send-message', async ({group_id, senderName, msg, sent_at}) => {
+    await sendMessage(group_id, senderName, msg, sent_at);
+    socket.to(group_id).emit('receive_message', {group_id: group_id, senderName: senderName, msg: msg, sent_at: sent_at} );
   });
   //-------------------------------------------------------------------------------------------------------------------------------------------
 
