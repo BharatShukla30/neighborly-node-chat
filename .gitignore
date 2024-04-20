@@ -1,3 +1,6 @@
 /node-backend/node_modules
 /react-chat-app/node_modules
 /node-backend/config
+/node-backend/logs
+/node_modules
+/package.json
