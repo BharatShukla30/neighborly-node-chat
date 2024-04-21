@@ -24,9 +24,21 @@ const io = require("socket.io")(server, {
 connectDatabase();
 
 const PORT = process.env.PORT || 3001;
+const CORS_URL = process.env.CORS_URL || "http://localhost:5173";
 
-app.get('/', (req, res) => {
-    res.status(200).send('Connected successfully!');
+// Applying Middlewares
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+// app.use(cors());
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", CORS_URL);
+  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.header("Access-Control-Allow-Credentials", true);
+  next();
+});
+app.get("/", (req, res) => {
+  res.status(200).send("Connected successfully!");
 });
 
 io.on("connection", (socket) => {
