@@ -25,6 +25,10 @@ connectDatabase();
 
 const PORT = process.env.PORT || 3001;
 
+app.get('/', (req, res) => {
+    res.status(200).send('Connected successfully!');
+});
+
 io.on("connection", (socket) => {
   activityLogger.info(`New connection: ${socket.id}`);
 
