@@ -25,10 +25,6 @@ connectDatabase();
 
 const PORT = process.env.PORT || 3001;
 
-app.get('/', (req, res) => {
-    res.status(200).send('Connected successfully!');
-});
-
 io.on("connection", (socket) => {
   activityLogger.info(`New connection: ${socket.id}`);
 
@@ -60,6 +56,7 @@ io.on("connection", (socket) => {
           senderName: senderName,
           msg: msg,
           sent_at: sent_at,
+          picture: senderPhoto,
         });
         activityLogger.info(
           `Message sent in room ${group_id} by ${senderName}`
