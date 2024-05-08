@@ -4,6 +4,7 @@ const http = require("http");
 const server = http.createServer(app);
 const connectDatabase = require("./config/database");
 const dotenv = require("dotenv");
+const customParser = require('socket.io-msgpack-parser');
 dotenv.config({ path: "./config/config.env" });
 const {
   joinRoom,
@@ -18,6 +19,7 @@ const io = require("socket.io")(server, {
   cors: {
     origin: "*",
   },
+  parser: customParser
 });
 
 // Connect to the database
