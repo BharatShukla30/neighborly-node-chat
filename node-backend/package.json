@@ -19,6 +19,7 @@
     "mongoose": "^8.1.1",
     "nodemon": "^3.1.0",
     "socket.io": "^4.7.2",
+    "socket.io-msgpack-parser": "^3.0.2",
     "winston": "^3.13.0"
   }
 }
