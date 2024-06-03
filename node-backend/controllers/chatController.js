@@ -33,6 +33,7 @@ exports.sendMessage = async (
   senderPhoto,
   senderName,
   msg,
+  mediaLink,
   sent_at
 ) => {
   const message = await Message.create({
@@ -41,6 +42,7 @@ exports.sendMessage = async (
     senderPhoto: senderPhoto,
     msg: msg,
     sent_at: sent_at,
+    mediaLink: mediaLink,
     read_by: room_under_use[group_id],
   });
   // console.log(message);
