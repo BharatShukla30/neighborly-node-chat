@@ -57,16 +57,26 @@ io.on("connection", (socket) => {
           senderPhoto,
           senderName,
           msg,
-          sent_at,
-          mediaLink
+          mediaLink,
+          sent_at
         );
+
+        console.log("Emitting receive_message event with data:", {
+          group_id,
+          senderName,
+          msg,
+          sent_at,
+          mediaLink,
+          senderPhoto,
+        });
+
         socket.to(group_id).emit("receive_message", {
           group_id: group_id,
           senderName: senderName,
           msg: msg,
           sent_at: sent_at,
           mediaLink: mediaLink,
-          picture: senderPhoto,
+          senderPhoto: senderPhoto,
         });
         activityLogger.info(
           `Message sent in room ${group_id} by ${senderName}`

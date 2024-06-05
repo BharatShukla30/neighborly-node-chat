@@ -17,7 +17,13 @@ const messageSchema = new mongoose.Schema({
   },
   msg: {
     type: String,
-    required: true,
+    validate: {
+      validator: function (v) {
+        // Only validate msg if mediaLink is not present
+        return this.mediaLink || v;
+      },
+      message: "Either message text or media link is required.",
+    },
   },
   sent_at: {
     type: Date,
@@ -31,6 +37,13 @@ const messageSchema = new mongoose.Schema({
   ],
   mediaLink: {
     type: String,
+    validate: {
+      validator: function (v) {
+        // Only validate mediaLink if msg is not present
+        return this.msg || v;
+      },
+      message: "Either message text or media link is required.",
+    },
   },
   votes: {
     type: Number,

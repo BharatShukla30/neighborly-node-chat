@@ -32,7 +32,7 @@ exports.sendMessage = async (
   group_id,
   senderPhoto,
   senderName,
-  msg,
+  msg, 
   mediaLink,
   sent_at
 ) => {
@@ -45,7 +45,6 @@ exports.sendMessage = async (
     mediaLink: mediaLink,
     read_by: room_under_use[group_id],
   });
-  // console.log(message);
 };
 
 const doesUserInRoom = (user, room) => {
