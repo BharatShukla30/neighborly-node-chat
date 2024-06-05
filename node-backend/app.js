@@ -4,7 +4,7 @@ const http = require("http");
 const server = http.createServer(app);
 const connectDatabase = require("./config/database");
 const dotenv = require("dotenv");
-const customParser = require('socket.io-msgpack-parser');
+const customParser = require("socket.io-msgpack-parser");
 dotenv.config({ path: "./config/config.env" });
 const {
   joinRoom,
@@ -19,7 +19,7 @@ const io = require("socket.io")(server, {
   cors: {
     origin: "*",
   },
-  parser: customParser
+  parser: customParser,
 });
 
 // Connect to the database
@@ -50,15 +50,33 @@ io.on("connection", (socket) => {
 
   socket.on(
     "send-message",
-    async ({ group_id, senderName, senderPhoto, msg, sent_at }) => {
+    async ({ group_id, senderName, senderPhoto, msg, sent_at, mediaLink }) => {
       try {
-        await sendMessage(group_id, senderPhoto, senderName, msg, sent_at);
+        await sendMessage(
+          group_id,
+          senderPhoto,
+          senderName,
+          msg,
+          mediaLink,
+          sent_at
+        );
+
+        console.log("Emitting receive_message event with data:", {
+          group_id,
+          senderName,
+          msg,
+          sent_at,
+          mediaLink,
+          senderPhoto,
+        });
+
         socket.to(group_id).emit("receive_message", {
           group_id: group_id,
           senderName: senderName,
           msg: msg,
           sent_at: sent_at,
-          picture: senderPhoto,
+          mediaLink: mediaLink,
+          senderPhoto: senderPhoto,
         });
         activityLogger.info(
           `Message sent in room ${group_id} by ${senderName}`
