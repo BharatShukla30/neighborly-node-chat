@@ -36,15 +36,15 @@ exports.sendMessage = async (
   mediaLink,
   sent_at
 ) => {
-  const message = await Message.create({
-    group_id: new ObjectId(group_id),
-    senderName: senderName,
-    senderPhoto: senderPhoto,
-    msg: msg,
-    sent_at: sent_at,
-    mediaLink: mediaLink,
-    read_by: room_under_use[group_id],
-  });
+  // const message = await Message.create({
+  //   group_id: new ObjectId(group_id),
+  //   senderName: senderName,
+  //   senderPhoto: senderPhoto,
+  //   msg: msg,
+  //   sent_at: sent_at,
+  //   mediaLink: mediaLink,
+  //   read_by: room_under_use[group_id],
+  // });
 };
 
 const doesUserInRoom = (user, room) => {

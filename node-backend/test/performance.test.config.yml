@@ -1,0 +1,43 @@
+config:
+  target: "http://localhost:5001"
+   
+  phases:
+    - duration: 20
+      arrivalRate: 10 # Initial warm-up phase with 10 new connections per second
+      rampTo: 1000000
+  engines:
+    socketio-v3: {}
+scenarios:
+  - name: "WebSocket Chat Test"
+    engine: "socketio"
+    flow:
+      - function: "connect"
+      - emit:
+          channel: "join-room"
+          data:
+            username: "testuser"
+            group_id: "testgroup"
+      - emit:
+          channel: "send-message"
+          data:
+            group_id: "testgroup"
+            senderName: "testuser"
+            senderPhoto: "testphoto.jpg"
+            msg: "Hello, this is a test message!"
+            sent_at: "{{ date '2024-07-10T12:34:56.789Z' }}"
+            mediaLink: ""
+      - emit:
+          channel: "up-vote"
+          data:
+            msg_id: "message123"
+      - emit:
+          channel: "down-vote"
+          data:
+            msg_id: "message123"
+      - think: 10
+      - emit:
+          channel: "leave-room"
+          data:
+            username: "testuser"
+            group_id: "testgroup"
+      - function: "disconnect"

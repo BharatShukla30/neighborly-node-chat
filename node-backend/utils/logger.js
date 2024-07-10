@@ -24,6 +24,13 @@ const activityLogger = createLogger({
   format: format.combine(customTimestampFormat, activityLogFormat),
   transports: [
     new transports.File({ filename: path.join(logsDir, "activity.log") }),
+    new transports.Console({
+      level: 'info',
+      format: format.combine(
+          format.colorize(),
+          format.simple()
+      )
+    })
   ],
 });
 
@@ -36,6 +43,13 @@ const errorLogger = createLogger({
       filename: path.join(logsDir, "error.log"),
       level: "error",
     }),
+    new transports.Console({
+      level: 'error',
+      format: format.combine(
+          format.colorize(),
+          format.simple()
+      )
+    })
   ],
 });
 

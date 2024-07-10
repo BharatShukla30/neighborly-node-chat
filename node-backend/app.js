@@ -1,8 +1,6 @@
 const express = require("express");
-const app = express();
 const http = require("http");
-const server = http.createServer(app);
-const connectDatabase = require("./config/database");
+// const connectDatabase = require("./config/database");
 const dotenv = require("dotenv");
 const customParser = require("socket.io-msgpack-parser");
 dotenv.config({ path: "./config/config.env" });
@@ -14,18 +12,17 @@ const {
   downVote,
 } = require("./controllers/chatController");
 const { activityLogger, errorLogger } = require("./utils/logger");
-
-const io = require("socket.io")(server, {
-  cors: {
-    origin: "*",
-  },
-  parser: customParser,
-});
-
-// Connect to the database
-connectDatabase();
+const socketIo = require('socket.io');
 
 const PORT = process.env.PORT || 3001;
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
+
+// Connect to the database
+// connectDatabase();
+
 
 io.on("connection", (socket) => {
   activityLogger.info(`New connection: ${socket.id}`);
@@ -89,7 +86,7 @@ io.on("connection", (socket) => {
 
   socket.on("up-vote", async ({ msg_id }) => {
     try {
-      await upVote(msg_id);
+      // await upVote(msg_id);
       activityLogger.info(`Message ${msg_id} up-voted`);
     } catch (error) {
       errorLogger.error("Error up-voting message", error);
@@ -98,7 +95,7 @@ io.on("connection", (socket) => {
 
   socket.on("down-vote", async ({ msg_id }) => {
     try {
-      await downVote(msg_id);
+      // await downVote(msg_id);
       activityLogger.info(`Message ${msg_id} down-voted`);
     } catch (error) {
       errorLogger.error("Error down-voting message", error);
