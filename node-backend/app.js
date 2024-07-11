@@ -21,7 +21,7 @@ const io = socketIo(server, {
   cors: {
     origin: "*",
   },
-  // parser: customParser, // TODO: enable parser
+  parser: customParser,
 });
 
 const handlers = new Map(Object.entries({

@@ -1,5 +1,6 @@
 const app = require('../app');
 const Client = require('socket.io-client');
+const customParser = require("socket.io-msgpack-parser");
 
 jest.mock('../utils/logger');
 
@@ -9,8 +10,12 @@ describe('Socket.IO Server', () => {
 
     beforeAll(() => {
         const port = process.env.PORT || 3001;
-        clientSocket1 = new Client(`http://localhost:${port}`);
-        clientSocket2 = new Client(`http://localhost:${port}`);
+        clientSocket1 = new Client(`http://localhost:${port}`, {
+            parser: customParser,
+        });
+        clientSocket2 = new Client(`http://localhost:${port}`, {
+            parser: customParser,
+        });
     });
 
     afterAll(() => {
