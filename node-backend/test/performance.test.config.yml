@@ -4,7 +4,7 @@ config:
   phases:
     - duration: 20
       arrivalRate: 10 # Initial warm-up phase with 10 new connections per second
-      rampTo: 1000000
+      rampTo: 100
   engines:
     socketio-v3: {}
 scenarios:

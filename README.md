@@ -1,5 +1,19 @@
 # Neighborly chat service
 
+Socket.io chat service
+
+## Testing
+
+Running application tests:
+
+```npm run test```
+
+Running performance tests:
+
+```npm run test-performance```
+
+NOTE: make sure server is running already
+
 ## To start the app:
 1. Get the config folder called "node-chat-config" from the google drive link and paste it into the node-backend folder.
 2. Rename the config folder to "config"

@@ -5,15 +5,12 @@
   "main": "app.js",
   "scripts": {
     "test": "npx jest",
-    "test-performance": "./node_modules/artillery/bin  run .\\test\\performance.test.config.yml",
+    "test-performance": "npx artillery run ./test/performance.test.config.yml",
     "start": "nodemon app.js",
     "dev": "nodemon app.js"
   },
   "author": "",
   "license": "ISC",
-  "jest": {
-    "testTimeout": 15000
-  },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",

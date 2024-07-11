@@ -1,115 +1,88 @@
-const io = require('socket.io-client');
-const dotenv = require('dotenv');
-dotenv.config({ path: './config/config.env' });
+const app = require('../app');
+const Client = require('socket.io-client');
 
-const serverUrl = `http://localhost:${process.env.PORT || 3001}`;
-const numClients = 100; // Number of concurrent clients
-const clients = [];
+jest.mock('../utils/logger');
 
-beforeAll((done) => {
-    for (let i = 0; i < numClients; i++) {
-        const client = io(serverUrl);
-        clients.push(client);
+describe('Socket.IO Server', () => {
+    let clientSocket1;
+    let clientSocket2
 
-        client.on('connect', () => {
-            if (clients.length === numClients) {
-                done();
-            }
-        });
-
-        client.on('error', (error) => {
-            console.error(`Client ${i} encountered an error:`, error);
-        });
-    }
-});
-
-afterAll(() => {
-    clients.forEach(client => client.disconnect());
-});
-
-test('Clients can join and leave rooms', (done) => {
-    let joinCount = 0;
-    let leaveCount = 0;
-
-    clients.forEach((client, index) => {
-        client.emit('join-room', { username: `user${index}`, group_id: 'test-room' });
-
-        client.on('receive_message', (message) => {
-            console.log('Received message:', message);
-        });
-
-        client.on('connect', () => {
-            joinCount++;
-            if (joinCount === numClients) {
-                clients.forEach((client, idx) => {
-                    client.emit('leave-room', { username: `user${idx}`, group_id: 'test-room' });
-                });
-            }
-        });
-
-        client.on('disconnect', () => {
-            leaveCount++;
-            if (leaveCount === numClients) {
-                done();
-            }
-        });
+    beforeAll(() => {
+        const port = process.env.PORT || 3001;
+        clientSocket1 = new Client(`http://localhost:${port}`);
+        clientSocket2 = new Client(`http://localhost:${port}`);
     });
-});
 
-test('Clients can send and receive messages', (done) => {
-    let messageCount = 0;
-    const testMessage = {
-        group_id: 'test-room',
-        senderName: 'test-sender',
-        senderPhoto: 'test-photo-url',
-        msg: 'Hello, world!',
-        sent_at: new Date(),
-        mediaLink: 'test-media-link',
-    };
-
-    clients.forEach((client) => {
-        client.emit('send-message', testMessage);
-
-        client.on('receive_message', (message) => {
-            messageCount++;
-            expect(message.msg).toBe(testMessage.msg);
-            if (messageCount === numClients) {
-                done();
-            }
-        });
+    afterAll(() => {
+        app.io.close();
+        clientSocket1.close();
+        clientSocket2.close();
     });
-});
 
-test('Clients can up-vote messages', (done) => {
-    let voteCount = 0;
-    const testMessageId = 'test-message-id';
-
-    clients.forEach((client) => {
-        client.emit('up-vote', { msg_id: testMessageId });
-
-        // Simulate a response or use a mock if needed
+    test('should join a room', (done) => {
+        clientSocket1.emit('join-room', { username: 'user1', group_id: 'room1' });
         setTimeout(() => {
-            voteCount++;
-            if (voteCount === numClients) {
-                done();
-            }
-        }, 100);
+            const rooms = Array.from(app.io.sockets.adapter.rooms.keys());
+            expect(rooms).toContain('room1');
+            done();
+        }, 50);
     });
-});
 
-test('Clients can down-vote messages', (done) => {
-    let voteCount = 0;
-    const testMessageId = 'test-message-id';
-
-    clients.forEach((client) => {
-        client.emit('down-vote', { msg_id: testMessageId });
-
-        // Simulate a response or use a mock if needed
+    test('should leave a room', (done) => {
+        clientSocket1.emit('join-room', { username: 'user1', group_id: 'room2' });
         setTimeout(() => {
-            voteCount++;
-            if (voteCount === numClients) {
+            clientSocket1.emit('leave-room', 'user1', 'room2');
+            setTimeout(() => {
+                const rooms = Array.from(app.io.sockets.adapter.rooms.keys());
+                expect(rooms).not.toContain('room2');
                 done();
-            }
-        }, 100);
+            }, 50);
+        }, 50);
+    });
+
+    test('should send a message', (done) => {
+        const message = {
+            msg_id: 1,
+            group_id: 'room1',
+            senderPhoto: 'photo.png',
+            senderName: 'user1',
+            msg: 'Hello',
+            mediaLink: '',
+            sent_at: new Date(),
+        };
+
+        clientSocket1.emit('join-room', { username: 'user1', group_id: 'room1' });
+        clientSocket2.emit('join-room', { username: 'user2', group_id: 'room1' });
+
+        clientSocket2.on('receive_message', (msg) => {
+            expect(msg.msg_id).toEqual(message.msg_id);
+            done();
+        });
+
+        setTimeout(() => {
+            clientSocket1.emit('send-message', message);
+        }, 50);
+    });
+
+    test('should handle up-vote', (done) => {
+        clientSocket2.on('up-vote_receive', (data) => {
+            expect(data.msg_id).toBe(1);
+            done();
+        });
+
+        setTimeout(() => {
+            clientSocket1.emit('up-vote', { group_id: 'room1', msg_id: 1 });
+        }, 50);
+    });
+
+    test('should handle down-vote', (done) => {
+        clientSocket2.on('down-vote_receive', (data) => {
+            expect(data.msg_id).toBe(1);
+            done();
+        });
+
+        setTimeout(() => {
+            clientSocket1.emit('down-vote', { group_id: 'room1', msg_id: 1 });
+        }, 50);
     });
 });
