@@ -14,7 +14,7 @@ const pushUserIntoRoom = (username, group_id) => {
 
 const subUserFromRoom = (username, group_id) => {
   const room = rooms.get(group_id);
-  const index = room.indexOf(5);
+  const index = room.indexOf(username);
   if (index > -1) {
     room.splice(index, 1);
     rooms.set(group_id, room);
