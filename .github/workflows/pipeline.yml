@@ -19,6 +19,7 @@ jobs:
         run: |
           echo "Running deployment script..."
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}
+          cd /
           ls -la
           cd /home/ec2-user/neighborly-node-chat/
           git pull origin master
