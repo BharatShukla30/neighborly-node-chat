@@ -18,7 +18,7 @@ jobs:
       - name: Run deployment script on EC2
         run: |
           echo "Running deployment script..."
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} bash /usr/local/bin/backend-deployment
           cd /home
           ls -la
           cd /home/ec2-user/neighborly-node-chat/
