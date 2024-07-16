@@ -20,6 +20,24 @@ jobs:
           echo "Running deployment script..."
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} bash /usr/local/bin/backend-deployment
           echo "Deployment script completed."
+      - name: Check PM2 logs for success
+        run: |
+          echo "Checking PM2 logs..."
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            LOG_PATH=$(pm2 show app | grep 'out log path' | awk '{print $6}')
+            echo "Log path: $LOG_PATH"
+            tail -n 50 $LOG_PATH > pm2_logs.txt
+            cat pm2_logs.txt
+          EOF
+          scp -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:pm2_logs.txt .
+          cat pm2_logs.txt
+          if grep -q "Server is running on http://localhost:5000" pm2_logs.txt; then
+            echo "Deployment successful"
+          else
+            echo "Deployment failed"
+            exit 1
+          fi
+          echo "Log check completed."
       - name: Notify success
         if: success()
         run: echo "Deployment was successful!"
