@@ -19,13 +19,6 @@ jobs:
         run: |
           echo "Running deployment script..."
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} bash /usr/local/bin/backend-deployment
-          cd /home
-          ls -la
-          cd /home/ec2-user/neighborly-node-chat/
-          git pull origin master
-          cd node-backend
-          pm2 restart app.js
-          exit
           echo "Deployment script completed."
       - name: Check PM2 logs for success
         run: |
