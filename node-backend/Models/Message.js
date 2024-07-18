@@ -1,54 +1,40 @@
-// messageModel.js
+// models/messageModel.js
 const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema({
-  group_id: {
+  groupId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Group",
-    required: true,
+    ref: "Group",  
+    required: true
   },
-  senderName: {
+  name: {
+    type: String,
+    required: true
+  },
+  message: {
     type: String,
     required: true,
   },
-  senderPhoto: {
-    type: String,
-    required: true,
-  },
-  msg: {
-    type: String,
-    validate: {
-      validator: function (v) {
-        // Only validate msg if mediaLink is not present
-        return this.mediaLink || v;
-      },
-      message: "Either message text or media link is required.",
-    },
-  },
-  sent_at: {
+  sendAt: {
     type: Date,
     default: Date.now,
   },
-  read_by: [
-    {
-      type: String,
-      required: true,
-    },
-  ],
+  readBy: [{
+    type: mongoose.Schema.Types.ObjectId,  
+    ref: 'User',  
+    required: true,
+  }],
   mediaLink: {
+    type: String
+  },
+  picture: {
     type: String,
-    validate: {
-      validator: function (v) {
-        // Only validate mediaLink if msg is not present
-        return this.msg || v;
-      },
-      message: "Either message text or media link is required.",
-    },
+  },  
+  parentMessageId: {
+    type: mongoose.Schema.Types.ObjectId,  
   },
-  votes: {
-    type: Number,
-    default: 0,
-  },
+}, {
+    timestamps: true  
 });
 
 const Message = mongoose.model("Message", messageSchema);
