@@ -1,5 +1,5 @@
 config:
-  target: "http://localhost:5001"
+  target: "http://localhost:3001"
    
   phases:
     - duration: 20
@@ -20,24 +20,24 @@ scenarios:
       - emit:
           channel: "send-message"
           data:
-            group_id: "testgroup"
-            senderName: "testuser"
-            senderPhoto: "testphoto.jpg"
-            msg: "Hello, this is a test message!"
-            sent_at: "{{ date '2024-07-10T12:34:56.789Z' }}"
+            groupId: "testgroup"
+            name: "testuser"
+            picture: "testphoto.jpg"
+            message: "Hello, this is a test message!"
+            timestamps: "{{ date '2024-07-10T12:34:56.789Z' }}"
             mediaLink: ""
       - emit:
           channel: "up-vote"
           data:
-            msg_id: "message123"
+            messageId: "message123"
       - emit:
           channel: "down-vote"
           data:
-            msg_id: "message123"
+            messageId: "message123"
       - think: 10
       - emit:
           channel: "leave-room"
           data:
             username: "testuser"
-            group_id: "testgroup"
+            groupId: "testgroup"
       - function: "disconnect"

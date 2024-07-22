@@ -2,83 +2,66 @@ const {activityLogger} = require("../utils/logger");
 
 const rooms = new Map();
 
-const pushUserIntoRoom = (username, group_id) => {
-  if (rooms.has(group_id)) {
-    const room = rooms.get(group_id);
+const pushUserIntoRoom = (username, groupId) => {
+  if (rooms.has(groupId)) {
+    const room = rooms.get(groupId);
     room.push(username);
-    rooms.set(group_id, room);
+    rooms.set(groupId, room);
   } else {
-    rooms.set(group_id, [username]);
+    rooms.set(groupId, [username]);
   }
 };
 
-const subUserFromRoom = (username, group_id) => {
-  const room = rooms.get(group_id);
+const subUserFromRoom = (username, groupId) => {
+  const room = rooms.get(groupId);
   const index = room.indexOf(username);
   if (index > -1) {
     room.splice(index, 1);
-    rooms.set(group_id, room);
+    rooms.set(groupId, room);
   }
 }
 
-const isUserInRoom = (username, group_id) => {
-  if (rooms.has(group_id)) {
-    return rooms.get(group_id).includes(username);
+const isUserInRoom = (username, groupId) => {
+  if (rooms.has(groupId)) {
+    return rooms.get(groupId).includes(username);
   }
   return false;
 };
 
-exports.joinRoom = (socket) => ({ username, group_id }) => {
-  if (!isUserInRoom(username, group_id)) {
-    pushUserIntoRoom(username, group_id);
-    socket.join(group_id);
-    activityLogger.info(username + " is active in the group " + group_id);
+exports.joinRoom = (socket) => ({ name, groupId }) => {
+  if (!isUserInRoom(name, groupId)) {
+    pushUserIntoRoom(name, groupId);
+    socket.join(groupId);
+    activityLogger.info(name + " is active in the group " + groupId);
   }
 };
 
-exports.leaveRoom = (socket) => (username, group_id) => {
-  if (isUserInRoom(username, group_id)) {
-    subUserFromRoom(username, group_id);
-    socket.leave(group_id);
-    activityLogger.info(`User ${username} left room ${group_id}`);
+exports.leaveRoom = (socket) => (name, groupId) => {
+  if (isUserInRoom(name, groupId)) {
+    subUserFromRoom(name, groupId);
+    socket.leave(groupId);
+    activityLogger.info(`User ${name} left room ${groupId}`);
   }
 };
 
-exports.sendMessage = (socket) => (
-    {
-      msg_id,
-      group_id,
-      senderPhoto,
-      senderName,
-      msg,
-      mediaLink,
-      sent_at
-    }
-) => {
-  socket.to(group_id).emit("receive_message", {
-    msg_id,
-    group_id: group_id,
-    senderName: senderName,
-    msg: msg,
-    sent_at: sent_at,
-    mediaLink: mediaLink,
-    senderPhoto: senderPhoto,
-  });
+exports.sendMessage = (socket) => (request) => {
+  const {groupId, ...msg} = request;
+  socket.to(groupId).emit("receive_message", msg);
   activityLogger.info(
-      `Message sent in room ${group_id} by ${senderName}`
+      `Message sent in room ${groupId} by ${msg.senderName}`
   );
 };
 
-exports.upVote = (socket) => ({group_id, msg_id}) => {
-  activityLogger.info(`Message ${msg_id} up-voted`);
-  socket.to(group_id).emit("up-vote_receive", {
-    msg_id,
+exports.upVote = (socket) => ({groupId, messageId}) => {
+  activityLogger.info(`Message ${messageId} up-voted`);
+  socket.to(groupId).emit("up-vote_receive", {
+    messageId,
   });
 };
 
-exports.downVote = (socket) => ({group_id, msg_id}) => {
-  activityLogger.info(`Message ${msg_id} down-voted`);
-  socket.to(group_id).emit("down-vote_receive", {
-    msg_id,
+exports.downVote = (socket) => ({groupId, messageId}) => {
+  activityLogger.info(`Message ${messageId} down-voted`);
+  socket.to(groupId).emit("down-vote_receive", {
+    messageId,
   });
 };
