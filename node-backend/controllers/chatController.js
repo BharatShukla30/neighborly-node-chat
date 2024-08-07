@@ -47,23 +47,30 @@ exports.leaveRoom = (socket) => (name, groupId) => {
 };
 
 exports.sendMessage = (socket) => async (request) => {
-  const { ...msg } = request;
-  const formData = new FormData();
-  formData.append("groupId", msg.group_id);
-  formData.append("message", msg.msg);
-  if (msg.mediaLink) formData.append("file", msg.mediaLink);
-  await fetch(messageAPI, {
-    method: "POST",
-    body: formData,
-    headers: {
-      authorization: "Bearer " + msg.accessToken,
-      Cookie: "refreshToken=" + msg.refreshToken,
-    },
-  });
-  socket.to(msg.group_id).emit("receive_message", msg);
-  activityLogger.info(
-    `Message sent in room ${msg.group_id} by ${msg.senderName}`
-  );
+  try {
+    const { ...msg } = request;
+    const formData = new FormData();
+    formData.append("groupId", msg.group_id);
+    formData.append("message", msg.msg);
+    if (msg.mediaLink) formData.append("file", msg.mediaLink);
+    activityLogger.info(
+      formData.toString + " being sent at " + messageAPI.toString()
+    );
+    await fetch(messageAPI, {
+      method: "POST",
+      body: formData,
+      headers: {
+        authorization: "Bearer " + msg.accessToken,
+        Cookie: "refreshToken=" + msg.refreshToken,
+      },
+    });
+    socket.to(msg.group_id).emit("receive_message", msg);
+    activityLogger.info(
+      `Message sent in room ${msg.group_id} by ${msg.senderName}`
+    );
+  } catch (err) {
+    errorLogger.error(err);
+  }
 };
 
 exports.upVote =
