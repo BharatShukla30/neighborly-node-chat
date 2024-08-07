@@ -1,5 +1,5 @@
-const {activityLogger} = require("../utils/logger");
-
+const { activityLogger } = require("../utils/logger");
+const messageAPI = process.env.API_ENDPOINT + process.env.MESSAGE_STORE;
 const rooms = new Map();
 
 const pushUserIntoRoom = (username, groupId) => {
@@ -19,7 +19,7 @@ const subUserFromRoom = (username, groupId) => {
     room.splice(index, 1);
     rooms.set(groupId, room);
   }
-}
+};
 
 const isUserInRoom = (username, groupId) => {
   if (rooms.has(groupId)) {
@@ -28,13 +28,15 @@ const isUserInRoom = (username, groupId) => {
   return false;
 };
 
-exports.joinRoom = (socket) => ({ name, groupId }) => {
-  if (!isUserInRoom(name, groupId)) {
-    pushUserIntoRoom(name, groupId);
-    socket.join(groupId);
-    activityLogger.info(name + " is active in the group " + groupId);
-  }
-};
+exports.joinRoom =
+  (socket) =>
+  ({ name, groupId }) => {
+    if (!isUserInRoom(name, groupId)) {
+      pushUserIntoRoom(name, groupId);
+      socket.join(groupId);
+      activityLogger.info(name + " is active in the group " + groupId);
+    }
+  };
 
 exports.leaveRoom = (socket) => (name, groupId) => {
   if (isUserInRoom(name, groupId)) {
@@ -45,35 +47,39 @@ exports.leaveRoom = (socket) => (name, groupId) => {
 };
 
 exports.sendMessage = (socket) => async (request) => {
-  const {...msg} = request;
+  const { ...msg } = request;
   const formData = new FormData();
   formData.append("groupId", msg.group_id);
   formData.append("message", msg.msg);
-  formData.append("file", msg.mediaLink);
-  await fetch(process.env.MESSAGE_STORE, {
+  if (msg.mediaLink) formData.append("file", msg.mediaLink);
+  await fetch(messageAPI, {
     method: "POST",
     body: formData,
     headers: {
-      "authorization": "Bearer "+msg.accessToken,
-      Cookie: "refreshToken="+msg.refreshToken
+      authorization: "Bearer " + msg.accessToken,
+      Cookie: "refreshToken=" + msg.refreshToken,
     },
   });
   socket.to(msg.group_id).emit("receive_message", msg);
   activityLogger.info(
-      `Message sent in room ${msg.group_id} by ${msg.senderName}`
+    `Message sent in room ${msg.group_id} by ${msg.senderName}`
   );
 };
 
-exports.upVote = (socket) => ({groupId, messageId}) => {
-  activityLogger.info(`Message ${messageId} up-voted`);
-  socket.to(groupId).emit("up-vote_receive", {
-    messageId,
-  });
-};
+exports.upVote =
+  (socket) =>
+  ({ groupId, messageId }) => {
+    activityLogger.info(`Message ${messageId} up-voted`);
+    socket.to(groupId).emit("up-vote_receive", {
+      messageId,
+    });
+  };
 
-exports.downVote = (socket) => ({groupId, messageId}) => {
-  activityLogger.info(`Message ${messageId} down-voted`);
-  socket.to(groupId).emit("down-vote_receive", {
-    messageId,
-  });
-};
+exports.downVote =
+  (socket) =>
+  ({ groupId, messageId }) => {
+    activityLogger.info(`Message ${messageId} down-voted`);
+    socket.to(groupId).emit("down-vote_receive", {
+      messageId,
+    });
+  };
