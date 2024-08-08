@@ -7,11 +7,10 @@ const {
   joinRoom,
   leaveRoom,
   sendMessage,
-  upVote,
-  downVote,
+  feedback,
 } = require("./controllers/chatController");
 const { activityLogger, errorLogger } = require("./utils/logger");
-const socketIo = require('socket.io');
+const socketIo = require("socket.io");
 
 const PORT = process.env.PORT || 3001;
 
@@ -21,23 +20,22 @@ const io = socketIo(server, {
   cors: {
     origin: "*",
   },
-  ... process.env.USE_PARSER
-  ? { parser: customParser }
-  : {},
+  ...(process.env.USE_PARSER ? { parser: customParser } : {}),
 });
 
-const handlers = new Map(Object.entries({
-  'join-room': joinRoom,
-  'leave-room': leaveRoom,
-  'send-message': sendMessage,
-  'up-vote': upVote,
-  'down-vote': downVote,
-}));
+const handlers = new Map(
+  Object.entries({
+    "join-room": joinRoom,
+    "leave-room": leaveRoom,
+    "send-message": sendMessage,
+    feedback: feedback,
+  })
+);
 
 const handlerProcessor = (socket, name, handler) => {
   try {
     return handler(socket);
-  } catch(e) {
+  } catch (e) {
     errorLogger.error(`Error on: ${name}`, e);
   }
 };
@@ -45,7 +43,7 @@ const handlerProcessor = (socket, name, handler) => {
 io.on("connection", (socket) => {
   activityLogger.info(`New connection: ${socket.id}`);
   for (let [name, handler] of handlers) {
-    socket.on(name, handlerProcessor(socket, name, handler))
+    socket.on(name, handlerProcessor(socket, name, handler));
   }
 
   socket.on("error", (error) => {

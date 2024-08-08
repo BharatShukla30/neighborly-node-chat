@@ -1,5 +1,6 @@
-const { activityLogger } = require("../utils/logger");
+const { activityLogger, errorLogger } = require("../utils/logger");
 const messageAPI = process.env.API_ENDPOINT + process.env.MESSAGE_STORE;
+const feedbackAPI = process.env.API_ENDPOINT + process.env.CHEER_BOO;
 const rooms = new Map();
 
 const pushUserIntoRoom = (username, groupId) => {
@@ -73,20 +74,41 @@ exports.sendMessage = (socket) => async (request) => {
   }
 };
 
-exports.upVote =
+//TODO: whenever we send a feedback we get this in console: "error: undefined {"timestamp":"08-08-2024 17:59:46"}", fix needed
+exports.feedback =
   (socket) =>
-  ({ groupId, messageId }) => {
-    activityLogger.info(`Message ${messageId} up-voted`);
-    socket.to(groupId).emit("up-vote_receive", {
-      messageId,
-    });
-  };
+  async ({ group_id, message_id, action, accessToken, refreshToken }) => {
+    try {
+      const payload = {
+        id: message_id,
+        type: "message",
+        feedback: action,
+      };
 
-exports.downVote =
-  (socket) =>
-  ({ groupId, messageId }) => {
-    activityLogger.info(`Message ${messageId} down-voted`);
-    socket.to(groupId).emit("down-vote_receive", {
-      messageId,
-    });
+      activityLogger.info(
+        `Feedback (${action}) for message ${message_id} starting`
+      );
+
+      const response = await fetch(feedbackAPI, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+          authorization: "Bearer " + accessToken,
+          Cookie: "refreshToken=" + refreshToken,
+        },
+      });
+      activityLogger.info(
+        `Received response from ${feedbackAPI}: ${JSON.stringify(responseData)}`
+      );
+      activityLogger.info(
+        `Feedback (${action}) for message ${message_id} completed.`
+      );
+      socket.to(group_id).emit("feedback_receive", {
+        message_id,
+        action,
+      });
+    } catch (err) {
+      errorLogger.error(err);
+    }
   };
